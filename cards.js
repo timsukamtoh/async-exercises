@@ -5,6 +5,9 @@ const $DISPLAY_AREA = $("#displayArea");
 const BASE_URL = "https://deckofcardsapi.com/"
 const NEW_DECK_URL = "api/deck/new/shuffle/?deck_count=1"
 
+/** Call api to get random shuffled deck and return
+ * deckID
+ */
 async function getShuffledDeck() {
   const resp = await axios({
     baseURL: BASE_URL,
@@ -20,15 +23,17 @@ async function getShuffledDeck() {
   return deckID;
 }
 
-
-async function drawCard(deckID, num = 1) {
+/** Call api to draw card from deckID.
+ * Returns cardValue and cardSuit of card.
+ */
+async function drawCard(deckID) {
   const resp = await axios({
     baseURL: BASE_URL,
     url:  `api/deck/${deckID}/draw` ,
     method: "GET",
     parameters:
       {
-        count: num
+        count: 1
       }
   });
 
@@ -45,6 +50,10 @@ async function drawCard(deckID, num = 1) {
   return {cardValue, cardSuit};
 }
 
+
+/** Calls getShuffledDeck() and then calls drawCard on that
+ * deck id twice, logging results to console.
+ */
 async function controlFunction(){
   const deckID = await getShuffledDeck();
   const card1 = await drawCard(deckID);
@@ -53,6 +62,10 @@ async function controlFunction(){
   console.log(card1, card2);
 }
 
+/** Call drawCard() on deckId obtained at login and passed in.
+ * Displays card in dom beneath previous cards. Checks if any
+ * cards in deck remaining and provides message to user.
+ */
 async function displayCard(deckID){
   const card = await drawCard(deckID);
   if (card === undefined){
@@ -64,6 +77,9 @@ async function displayCard(deckID){
   }
 }
 
+/** Upon page load calls getShuffledDeck to get new deckID
+ *  and sets up event listener on draw card button.
+ */
 async function loadPage(){
   const deckID =  await getShuffledDeck();
   $("button").on("click", () => {displayCard(deckID)});
